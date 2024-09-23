@@ -8,20 +8,50 @@
         body {
             margin: 0;
             padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             background-image: url('https://upload.wikimedia.org/wikipedia/fr/1/1a/Bob_l%27%C3%A9ponge_logo_S09.png');
             background-size: 200px 200px;
             background-repeat: repeat;
-            overflow: hidden; /* Hide overflowing elements */
-            height: 100vh; /* Set full height for body */
-            display: flex; /* Use flexbox for centering */
-            justify-content: center; /* Center horizontally */
-            align-items: center; /* Center vertically */
         }
 
         .floating-image {
             position: absolute;
             width: 100px;
             height: 100px;
+            transition: transform 0.2s ease;
+        }
+
+        .hit {
+            transform: scale(1.2) rotate(15deg);
+        }
+
+        .particle {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 1;
+            animation: particle-fade 1s forwards;
+        }
+
+        @keyframes particle-fade {
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+
+        #score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            color: white; /* Change text color for visibility */
         }
 
         .video-container {
@@ -29,13 +59,13 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 40vh; /* Smaller height for the video container */
-            margin: auto; /* Center the container */
+            height: 40vh;
+            margin: auto;
         }
 
         video {
-            max-width: 60%; /* Make the video smaller */
-            height: auto; /* Maintain the aspect ratio */
+            max-width: 80%;
+            height: auto;
         }
     </style>
 </head>
@@ -48,50 +78,81 @@
         </video>
     </div>
 
-    <!-- Ten floating images -->
-    <img src="image.jpeg" class="floating-image" id="image1">
-    <img src="image.jpeg" class="floating-image" id="image2">
-    <img src="image.jpeg" class="floating-image" id="image3">
-    <img src="image.jpeg" class="floating-image" id="image4">
-    <img src="image.jpeg" class="floating-image" id="image5">
-    <img src="image.jpeg" class="floating-image" id="image6">
-    <img src="image.jpeg" class="floating-image" id="image7">
-    <img src="image.jpeg" class="floating-image" id="image8">
-    <img src="image.jpeg" class="floating-image" id="image9">
-    <img src="image.jpeg" class="floating-image" id="image10">
+    <div id="score">Score: 0</div>
 
     <script>
-        const images = [
-            { id: 'image1', dx: 2, dy: 2 },
-            { id: 'image2', dx: 3, dy: 1 },
-            { id: 'image3', dx: 1, dy: 3 },
-            { id: 'image4', dx: 4, dy: 2 },
-            { id: 'image5', dx: 2, dy: 4 },
-            { id: 'image6', dx: 3, dy: 3 },
-            { id: 'image7', dx: 5, dy: 2 },
-            { id: 'image8', dx: 2, dy: 5 },
-            { id: 'image9', dx: 4, dy: 4 },
-            { id: 'image10', dx: 1, dy: 2 }
-        ];
+        const body = document.body;
+        let score = 0;
+        const scoreDisplay = document.getElementById('score');
+
+        function randomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        function createParticle(x, y) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.backgroundColor = randomColor();
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+            body.appendChild(particle);
+            setTimeout(() => particle.remove(), 1000);
+        }
+
+        for (let i = 1; i <= 100; i++) {
+            const img = document.createElement('img');
+            img.src = 'image.jpeg'; // Set your image source
+            img.className = 'floating-image';
+            img.style.filter = `hue-rotate(${Math.random() * 360}deg)`; // Random color filter
+            img.id = `image${i}`;
+            body.appendChild(img);
+        }
+
+        const images = [];
+        for (let i = 1; i <= 100; i++) {
+            images.push({ id: `image${i}`, dx: Math.random() * 5 + 1, dy: Math.random() * 5 + 1, hits: 0 });
+        }
 
         function moveImage(image) {
             const imgElement = document.getElementById(image.id);
             let rect = imgElement.getBoundingClientRect();
-            let x = rect.x;
-            let y = rect.y;
+            let x = Math.random() * (window.innerWidth - rect.width);
+            let y = Math.random() * (window.innerHeight - rect.height);
 
             function bounce() {
-                // Update position
+                // Update position without gravity
                 x += image.dx;
                 y += image.dy;
 
                 // Check for collision with edges
-                if (x <= 0 || x + rect.width >= window.innerWidth) image.dx *= -1;
-                if (y <= 0 || y + rect.height >= window.innerHeight) image.dy *= -1;
+                let hit = false;
+                if (x <= 0 || x + rect.width >= window.innerWidth) {
+                    image.dx *= -1.1; // Reverse direction and increase speed
+                    hit = true;
+                }
+                if (y <= 0 || y + rect.height >= window.innerHeight) {
+                    image.dy *= -1.1; // Reverse direction and increase speed
+                    hit = true;
+                }
 
                 // Apply new position
                 imgElement.style.left = `${x}px`;
                 imgElement.style.top = `${y}px`;
+
+                // Apply hit animation and trail
+                if (hit) {
+                    imgElement.classList.add('hit');
+                    createParticle(x + rect.width / 2, y + rect.height / 2); // Create particle effect
+                    image.hits++; // Increment hits
+                    score++; // Increase score
+                    scoreDisplay.textContent = `Score: ${score}`; // Update score display
+                    setTimeout(() => imgElement.classList.remove('hit'), 200);
+                }
 
                 requestAnimationFrame(bounce);
             }
