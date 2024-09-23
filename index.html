@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>bobes ponja</title>
+    <title>Bouncing Images</title>
     <style>
         body {
             margin: 0;
@@ -11,9 +11,17 @@
             background-image: url('https://upload.wikimedia.org/wikipedia/fr/1/1a/Bob_l%27%C3%A9ponge_logo_S09.png');
             background-size: 200px 200px;
             background-repeat: repeat;
-            background-position: 0 0;
-            background-attachment: fixed;
-            background-blend-mode: multiply;
+            overflow: hidden; /* Hide overflowing elements */
+            height: 100vh; /* Set full height for body */
+            display: flex; /* Use flexbox for centering */
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+        }
+
+        .floating-image {
+            position: absolute;
+            width: 100px;
+            height: 100px;
         }
 
         .video-container {
@@ -21,19 +29,13 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            height: 40vh; /* Smaller height for the video container */
+            margin: auto; /* Center the container */
         }
 
         video {
-            width: 640px;
-            height: 360px;
-        }
-
-        h1 {
-            font-family: Arial, sans-serif;
-            color: #fff;
-            text-shadow: 2px 2px 4px #000;
-            margin-bottom: 20px;
+            max-width: 60%; /* Make the video smaller */
+            height: auto; /* Maintain the aspect ratio */
         }
     </style>
 </head>
@@ -45,5 +47,59 @@
             Your browser does not support the video tag.
         </video>
     </div>
+
+    <!-- Ten floating images -->
+    <img src="image.jpeg" class="floating-image" id="image1">
+    <img src="image.jpeg" class="floating-image" id="image2">
+    <img src="image.jpeg" class="floating-image" id="image3">
+    <img src="image.jpeg" class="floating-image" id="image4">
+    <img src="image.jpeg" class="floating-image" id="image5">
+    <img src="image.jpeg" class="floating-image" id="image6">
+    <img src="image.jpeg" class="floating-image" id="image7">
+    <img src="image.jpeg" class="floating-image" id="image8">
+    <img src="image.jpeg" class="floating-image" id="image9">
+    <img src="image.jpeg" class="floating-image" id="image10">
+
+    <script>
+        const images = [
+            { id: 'image1', dx: 2, dy: 2 },
+            { id: 'image2', dx: 3, dy: 1 },
+            { id: 'image3', dx: 1, dy: 3 },
+            { id: 'image4', dx: 4, dy: 2 },
+            { id: 'image5', dx: 2, dy: 4 },
+            { id: 'image6', dx: 3, dy: 3 },
+            { id: 'image7', dx: 5, dy: 2 },
+            { id: 'image8', dx: 2, dy: 5 },
+            { id: 'image9', dx: 4, dy: 4 },
+            { id: 'image10', dx: 1, dy: 2 }
+        ];
+
+        function moveImage(image) {
+            const imgElement = document.getElementById(image.id);
+            let rect = imgElement.getBoundingClientRect();
+            let x = rect.x;
+            let y = rect.y;
+
+            function bounce() {
+                // Update position
+                x += image.dx;
+                y += image.dy;
+
+                // Check for collision with edges
+                if (x <= 0 || x + rect.width >= window.innerWidth) image.dx *= -1;
+                if (y <= 0 || y + rect.height >= window.innerHeight) image.dy *= -1;
+
+                // Apply new position
+                imgElement.style.left = `${x}px`;
+                imgElement.style.top = `${y}px`;
+
+                requestAnimationFrame(bounce);
+            }
+
+            bounce();
+        }
+
+        images.forEach(moveImage);
+    </script>
 </body>
 </html>
