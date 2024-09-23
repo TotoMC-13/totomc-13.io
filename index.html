@@ -3,13 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Page</title>
+    <title>bobes ponja</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-image: url('https://upload.wikimedia.org/wikipedia/fr/1/1a/Bob_l%27%C3%A9ponge_logo_S09.png');
+            background-size: 200px 200px;
+            background-repeat: repeat;
+            background-position: 0 0;
+            background-attachment: fixed;
+            background-blend-mode: multiply;
+        }
+
+        .video-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        video {
+            width: 640px;
+            height: 360px;
+        }
+    </style>
 </head>
 <body>
-    <h1>bobes ponja</h1>
-    <video width="640" height="360" controls>
-        <source src="./bobesponja.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
+    <div class="video-container">
+        <video autoplay loop>
+            <source src="./bobesponja.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
 </body>
 </html>
